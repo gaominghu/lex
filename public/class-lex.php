@@ -278,10 +278,10 @@ class Lex {
 	          'show_ui' => true,
 	          'show_in_menu' => true,
 	          'capability_type' => 'post',
-	          'hierarchical' => false,
+	          'hierarchical' => true,
 	          'rewrite' => array('slug' => ''),
 	          'query_var' => true,
-	          'supports' => array('title','editor','excerpt','custom-fields','thumbnail','author'),
+	          'supports' => array('title','editor','author'),
 	          'labels' => array (
 	            'name' => __('Lexicon', $domain),
 	            'singular_name' => __('Word', $domain),
