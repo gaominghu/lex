@@ -16,7 +16,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Lex
- * Plugin URI:        
+ * Plugin URI:
  * Description:       @TODO
  * Version:           1.0.0
  * Author:            gabrielstuff
@@ -34,12 +34,15 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+if ( ! defined( 'LEX_PLUGIN_BASENAME' ) )
+	define( 'LEX_PLUGIN_BASENAME', 'the-board' );
+
 /*----------------------------------------------------------------------------*
  * Public-Facing Functionality
  *----------------------------------------------------------------------------*/
 
 require_once( plugin_dir_path( __FILE__ ) . 'public/class-lex.php' );
-
+require_once( plugin_dir_path( __FILE__ ) . 'includes/shortcodes.php' );
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
  * When the plugin is deleted, the uninstall.php file is loaded.

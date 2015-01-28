@@ -81,7 +81,6 @@ class Lex {
 		//add_action( '@TODO', array( $this, 'action_method_name' ) );
 		//add_filter( '@TODO', array( $this, 'filter_method_name' ) );
 		add_filter('the_content', array( $this, 'replace_glossaire_content') );
-		add_shortcode( 'lexicon', array( $this, 'register_shortcode' ) );
 
 	}
 
@@ -346,12 +345,14 @@ class Lex {
 	/*Allow to create Glossaire*/
 function get_glossaire_link($word)
 {
-  if(function_exists("icl_object_id"))
-    $permalink = get_permalink( icl_object_id( esc_attr( get_option('lexicon_page_id') ), 'page', true) );
-  else
-    $permalink = get_permalink(esc_attr( get_option('lexicon_page_id') ) );
-
-  return $permalink."?lettre=".substr($word, 0, 1)."#$word";
+//  if(function_exists("icl_object_id"))
+//    $permalink = get_permalink( icl_object_id( esc_attr( get_option('lexicon_page_id') ), 'page', true) );
+//  else
+//    $permalink = get_permalink(esc_attr( get_option('lexicon_page_id') ) );
+//
+//  return $permalink."?lettre=".substr($word, 0, 1)."#$word";
+	$sanitizedWord =  sanitize_title($word);
+	return "#lexique?word=$sanitizedWord";
 }
 
 function prepare_words($text, $word)
@@ -378,64 +379,42 @@ function prepare_words($text, $word)
 
 function replace_glossaire_content($content)
 {
-  global $query_word;
-  if (!isset($query_word)) {
-    $query_word = new WP_Query( array( 'orderby' => 'title', 'order' => 'DESC', 'post_type' => 'lex_word', 'posts_per_page' => -1) );
-  }
-  while ( $query_word->have_posts() ) : $query_word->the_post();
-    $content = $this->prepare_words($content, get_the_title());
-    $content = preg_replace("/--((".preg_quote(get_the_title(),'/').")s?)--/i", '<a href="'.$this->get_glossaire_link(get_the_title()).'" class="glossy" title="'.esc_attr(get_the_content()).'" >\1</a>',$content);
-  endwhile;
-  wp_reset_query();
-  return $content;
-}
-
-function register_shortcode(){
-	ob_start();
-	?>
-	<div id="glossaire">
-                      <div class="alphabet">
-                      <?php foreach(range('A','Z') as $lettre): ?>
-                              <?php
-                              $class = "active";
-                              if (!empty ( $_GET["lettre"] ) ) { //Si il a choisit une lettre, on insère la lettre chosie
-                                if($lettre == $_GET["lettre"]):
-                                  $class = "active";
-                                else:
-                                  $class = "";
-                                endif;
-                              } elseif ($lettre != "A") {
-                                  $class = "";
-                              }?>
-                              <a href='?lettre=<?php echo $lettre ?>' <?php if(!empty($class)): echo "class='$class'"; endif;?>><?php echo $lettre ?></a> <!--Lettres de l'alphabet !-->
-                      <?php endforeach;?>
-                      </div>
-                      <ul>
-                      <?php
-                            $loop = new WP_Query( array( 'post_type' => 'lex_word', 'posts_per_page' => -1, 'orderby' => "title", 'order'=>"asc") );
-                            if (!empty ( $_GET["lettre"] ) ) { //Si il a choisit une lettre, on insère la lettre chosiie
-                              $lettre=ucwords( $_GET["lettre"] );
-                            } else {    //Sinon on insère "A" par défaut
-                              $lettre="A";
-                            }
-                            while ( $loop->have_posts() ) : $loop->the_post();
-                                        // Fix for capitalized words
-                              					$title=ucwords( strtolower( get_the_title() ) ); // On met les premières lettres en majuscule
-
-                                        //$title = get_the_title();
-                              if ( substr($title, 0, 1) == $lettre ):
-                        ?>    <li class="glossaire_preview">
-                                  <strong><a name="<?php echo $title?>" id="<?php echo $title?>"><?php echo $title;?></a> : </strong> <?php _e(get_the_content());  ?>
-                              </li>
-
-                      <?php   endif;
-                            endwhile;
-                      ?>
-                      </ul>
-                  </div>
-  <?php
-  return ob_get_clean();
+	global $query_word;
+	if (!isset($query_word)) {
+		$query_word = new WP_Query(array('orderby' => 'title', 'order' => 'DESC', 'post_type' => 'lex_word', 'posts_per_page' => -1));
+	}
+	while ($query_word->have_posts()) : $query_word->the_post();
+		$content = $this->prepare_words($content, get_the_title());
+		$content = preg_replace("/--((" . preg_quote(get_the_title(), '/') . ")s?)--/i", '<a href="' . $this->get_glossaire_link(get_the_title()) . '" class="glossy" title="' . esc_attr(get_the_content()) . '" >\1</a>', $content);
+	endwhile;
+	wp_reset_query();
+	return $content;
 }
 
 
+	static function tb_check_path($slug){
+		$user_theme_template = "/plugins/lex/templates";
+
+		if( file_exists( get_template_directory().$user_theme_template."/css/styles.css") ){
+			wp_enqueue_style('user-css', get_template_directory_uri().$user_theme_template."/css/styles.css", array(), self::VERSION );
+		} else {
+			wp_enqueue_style( 'the-board-default-styles', plugins_url( 'templates/css/default.css', __FILE__ ), array(), self::VERSION );
+		}
+
+		if( file_exists( get_template_directory().$user_theme_template."/css/scripts.js") ){
+			wp_enqueue_script('user-js', get_template_directory_uri().$user_theme_template."/css/scripts.js", array(  ), self::VERSION);
+		} else {
+			wp_enqueue_script( 'the-board-default-script', plugins_url( 'templates/js/default.js', __FILE__ ), array(  ), self::VERSION );
+		}
+
+		if( file_exists(get_template_directory().$user_theme_template."/".$slug.".php") ){
+			return $path = get_template_directory().$user_theme_template."/".$slug.".php";
+		} else {
+			return $path = plugin_dir_path( __FILE__ ) . 'templates/'.$slug.'.php';
+		}
+
+		if( !isset($path) || !file_exists($path)){
+			return __('No template found. Sorry.', LEX_PLUGIN_BASENAME);
+		}
+	}
 }
