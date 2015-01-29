@@ -81,7 +81,7 @@ class Lex {
 		//add_action( '@TODO', array( $this, 'action_method_name' ) );
 		//add_filter( '@TODO', array( $this, 'filter_method_name' ) );
 		add_filter('the_content', array( $this, 'replace_glossaire_content') );
-
+		add_filter( 'single_template', array( $this, 'lexicon_template' ));
 	}
 
 	/**
@@ -278,7 +278,7 @@ class Lex {
 	          'show_in_menu' => true,
 	          'capability_type' => 'post',
 	          'hierarchical' => true,
-	          'rewrite' => array('slug' => ''),
+	          'rewrite' => false,
 	          'query_var' => true,
 	          'supports' => array('title','editor','author'),
 	          'labels' => array (
@@ -392,7 +392,7 @@ function replace_glossaire_content($content)
 }
 
 
-	static function tb_check_path($slug){
+	static function lex_check_path($slug){
 		$user_theme_template = "/plugins/lex/templates";
 
 		if( file_exists( get_template_directory().$user_theme_template."/css/styles.css") ){
@@ -417,4 +417,16 @@ function replace_glossaire_content($content)
 			return __('No template found. Sorry.', LEX_PLUGIN_BASENAME);
 		}
 	}
+
+	public function lexicon_template($single) {
+		global $wp_query, $post;
+		/* Checks for single template by post type */
+		if ($post->post_type == "lex_word"){
+			return Lex::lex_check_path('single_word');
+		}
+		return $single;
+	}
 }
+
+
+

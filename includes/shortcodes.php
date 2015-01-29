@@ -5,7 +5,7 @@ function register_shortcode(){
 
   $return = null;
 
-  $path = Lex::tb_check_path('list');
+  $path = Lex::lex_check_path('list');
 
   ob_start();
   include( $path );
