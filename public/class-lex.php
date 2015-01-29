@@ -385,7 +385,7 @@ function replace_glossaire_content($content)
 	}
 	while ($query_word->have_posts()) : $query_word->the_post();
 		$content = $this->prepare_words($content, get_the_title());
-		$content = preg_replace("/--((" . preg_quote(get_the_title(), '/') . ")s?)--/i", '<a href="' . $this->get_glossaire_link(get_the_title()) . '" class="glossy" title="' . esc_attr(get_the_content()) . '" >\1</a>', $content);
+		$content = preg_replace("/--((" . preg_quote(get_the_title(), '/') . ")s?)--/i", '<a href="' . $this->get_glossaire_link(get_the_title()) . '" data-slug="' . sanitize_title(get_the_title()) . '" class="glossy" title="' . esc_attr(get_the_content()) . '" >\1</a>', $content);
 	endwhile;
 	wp_reset_query();
 	return $content;
