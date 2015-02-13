@@ -80,7 +80,10 @@ class Lex {
 		 */
 		//add_action( '@TODO', array( $this, 'action_method_name' ) );
 		//add_filter( '@TODO', array( $this, 'filter_method_name' ) );
-		add_filter('the_content', array( $this, 'replace_glossaire_content') );
+
+    if (get_option('auto-detection')){
+      add_filter('the_content', array( $this, 'replace_glossaire_content') );
+    }
 		add_filter( 'single_template', array( $this, 'lexicon_template' ));
 	}
 
