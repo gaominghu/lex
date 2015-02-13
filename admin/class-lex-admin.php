@@ -187,6 +187,7 @@ class Lex_Admin {
 
 	public function register_mysettings() { // whitelist options
 	  register_setting( 'lex-option-group', 'lexicon_page_id' );
+    register_setting( 'lex-option-group', 'auto-detection' );
 	  register_setting( 'lex-option-group', 'sweet_opt' );
 	  register_setting( 'lex-option-group', 'test_opt' );
 	}
