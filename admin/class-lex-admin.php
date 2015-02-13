@@ -86,7 +86,54 @@ class Lex_Admin {
 		add_action( '@TODO', array( $this, 'action_method_name' ) );
 		add_filter( '@TODO', array( $this, 'filter_method_name' ) );
 
+
+    add_action( 'add_meta_boxes', array( $this, 'lex_add_meta_boxes') );
+    add_action('save_post', array( $this, 'lex_meta_box_save'));
 	}
+
+  public function lex_add_meta_boxes() {
+    add_meta_box( 'Word slug',
+        __('Word slug', $this->plugin_slug),
+        array($this, 'lex_slug_meta_box_display'),
+        'lex_word',
+        'normal',
+        'default'
+    );
+  }
+
+  function lex_slug_meta_box_display() {
+    global $post;
+    $word = get_post_meta($post->ID, 'lex_word', true);
+    wp_nonce_field( 'lex_meta_box_nonce', 'lex_meta_box_nonce' );
+    if (isset($word['lex_slug'])){
+      echo '<input type="text" class="widefat" name="lex_slug" value="'.$word['lex_slug'] .'"/>';
+    }
+    else{
+      echo '<input type="text" class="widefat" name="lex_slug" />';
+    }
+  }
+
+  function lex_meta_box_save($post_id){
+    if ( ! isset( $_POST['lex_meta_box_nonce'] ) ||
+        ! wp_verify_nonce( $_POST['lex_meta_box_nonce'], 'lex_meta_box_nonce' ) )
+      return;
+
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+      return;
+
+    if (!current_user_can('edit_post', $post_id))
+      return;
+
+    $old = get_post_meta($post_id, 'lex_word', true);
+    $new = array();
+    $lexique = array();
+    $slug = $_POST['lex_slug'];
+    $new['lex_slug'] = sanitize_title($slug);
+    if ( !empty( $new ) && $new != $old )
+      update_post_meta( $post_id, 'lex_word', $new );
+    elseif ( empty($new) && $old )
+      delete_post_meta( $post_id, 'lex_word', $old );
+  }
 
 	/**
 	 * Return an instance of this class.

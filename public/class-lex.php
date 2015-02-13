@@ -85,6 +85,32 @@ class Lex {
       add_filter('the_content', array( $this, 'replace_glossaire_content') );
     }
 		add_filter( 'single_template', array( $this, 'lexicon_template' ));
+
+    add_action( 'wp_ajax_lexique_list_insert_dialog', 'lexique_list_insert_dialog' );
+
+    function lexique_list_insert_dialog() {
+      echo '<select id="lexique_list_dialog">';
+      $loop = new WP_Query( array( 'post_type' => 'lex_word', 'posts_per_page' => -1, 'orderby' => "title", 'order'=>"asc") );
+      while ( $loop->have_posts() ) : $loop->the_post();
+        // Fix for capitalized words
+        $title= sanitize_title(get_the_title()); // On met les premières lettres en majuscule
+        $meta = get_post_meta(get_the_ID(), 'lex_word', true);
+        $slug = (isset($meta['lex_slug']) && $meta['lex_slug'] != '')? $meta['lex_slug'] : $title;
+        if (isset(simple_fields_fieldgroup('lex_categorie')['selected_value'])  && simple_fields_fieldgroup('lex_categorie')['selected_option']['key'] !=  'dropdown_num_5'){
+          $category = simple_fields_fieldgroup('lex_categorie')['selected_value'];
+        }
+        else{
+          $category = 'none';
+        }
+        $text = get_the_title() . ' (' . $category . ')';
+        //$title = get_the_title();
+          ?>
+        <option class="" value="" data-id="<?php echo $slug?>"><?php echo $text;?></option>
+
+        <?php
+      endwhile;
+      echo '</select>';
+    }
 	}
 
 	/**
