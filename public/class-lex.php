@@ -96,8 +96,9 @@ class Lex {
         $title= sanitize_title(get_the_title()); // On met les premières lettres en majuscule
         $meta = get_post_meta(get_the_ID(), 'lex_word', true);
         $slug = (isset($meta['lex_slug']) && $meta['lex_slug'] != '')? $meta['lex_slug'] : $title;
-        if (isset(simple_fields_fieldgroup('lex_categorie')['selected_value'])  && simple_fields_fieldgroup('lex_categorie')['selected_option']['key'] !=  'dropdown_num_5'){
-          $category = simple_fields_fieldgroup('lex_categorie')['selected_value'];
+        $simple_field = simple_fields_fieldgroup('lex_categorie');
+        if (isset($simple_field['selected_value'])  && $simple_field['selected_option']['key'] !=  'dropdown_num_5'){
+          $category = $simple_field['selected_value'];
         }
         else{
           $category = 'none';
